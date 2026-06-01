@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/app/">
+    <Project Path="app/Leontes.DevTool.Desktop/Leontes.DevTool.Desktop.csproj" />
+  </Folder>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="backend/src/Leontes.DevTool.Application/Leontes.DevTool.Application.csproj" />
+    <Project Path="backend/src/Leontes.DevTool.Domain/Leontes.DevTool.Domain.csproj" />
+    <Project Path="backend/src/Leontes.DevTool.Infrastructure/Leontes.DevTool.Infrastructure.csproj" />
+  </Folder>
+</Solution>

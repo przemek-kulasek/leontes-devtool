@@ -1,0 +1,362 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Leontes.DevTool.Desktop.ViewModels"
+             xmlns:md="using:Markdown.Avalonia"
+             x:Class="Leontes.DevTool.Desktop.Views.TaskView"
+             x:CompileBindings="False">
+
+    <Grid ColumnDefinitions="270,16,*">
+
+        <!-- Steps pane (non-linear) -->
+        <Border Grid.Column="0" Classes="card" Padding="12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="4,2,4,12" Spacing="2">
+                    <TextBlock Text="{Binding Header}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Text="workflow" Classes="subtitle"/>
+                </StackPanel>
+                <ListBox ItemsSource="{Binding Steps}" Background="Transparent"
+                         SelectedItem="{Binding SelectedStep, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,Auto,*" VerticalAlignment="Center">
+                                <Border Grid.Column="0" Classes="dot" Margin="0,0,12,0"
+                                        Background="{Binding Status, Converter={StaticResource StepStatusBrush}}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Number}" Classes="muted"
+                                           Width="18" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{Binding Title}" FontWeight="Medium"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Step content -->
+        <Border Grid.Column="2" Classes="card" Padding="0">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="22,14" BorderThickness="0,0,0,1"
+                    BorderBrush="{DynamicResource CardBorderBrush}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Border Classes="dot"
+                                    Background="{Binding SelectedStep.Status, Converter={StaticResource StepStatusBrush}}"/>
+                            <TextBlock Text="{Binding SelectedStep.Title}" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Status}" Classes="muted" TextWrapping="Wrap"
+                                   IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <ProgressBar Width="80" IsIndeterminate="True" VerticalAlignment="Center"
+                                     IsVisible="{Binding IsBusy}"/>
+                        <Button Content="Mark done" Classes="ghost" Command="{Binding MarkSelectedDoneCommand}"/>
+                        <Button Content="Skip" Classes="ghost" Command="{Binding SkipSelectedCommand}"/>
+                        <Button Content="Reopen" Classes="ghost" Command="{Binding ResetSelectedCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <ScrollViewer Padding="22">
+                <Panel>
+
+                    <!-- Intake -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=Intake}">
+                        <TextBlock Classes="title" Text="Intake — Jira ticket"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Fetch from Jira, or just type the details below by hand. Whatever is here feeds the generated spec."/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBox Text="{Binding JiraKey}" Width="220" Watermark="MA-777"/>
+                            <Button Content="Fetch from Jira" Classes="accent" Command="{Binding FetchTicketCommand}"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding TicketAttachmentsInfo}" Classes="muted"
+                                   IsVisible="{Binding TicketAttachmentsInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="Summary" Classes="section"/>
+                        <TextBox Text="{Binding TicketSummary}" Watermark="Short summary of the ticket"/>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="Type"/>
+                                <TextBox Text="{Binding TicketType}" Watermark="Story / Bug / Task"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="Status"/>
+                                <TextBox Text="{Binding TicketStatus}" Watermark="To Do / In Progress"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Description" Classes="section"/>
+                        <TextBox Text="{Binding TicketDescription}" AcceptsReturn="True"
+                                 TextWrapping="Wrap" MinHeight="240"/>
+                        <TextBlock Text="Acceptance Criteria" Classes="section"/>
+                        <TextBlock Classes="muted" FontSize="11"
+                                   Text="Fetched from the configured custom field (see Settings → Jira). You can also type or paste directly."/>
+                        <TextBox Text="{Binding TicketAcceptanceCriteria}" AcceptsReturn="True"
+                                 TextWrapping="Wrap" MinHeight="100" Watermark="Enter acceptance criteria…"/>
+                        <StackPanel Spacing="6"
+                                    IsVisible="{Binding HasTicketComments}">
+                            <TextBlock Text="Comments" Classes="section"/>
+                            <ItemsControl ItemsSource="{Binding TicketComments}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="12,8" Margin="0,4" CornerRadius="10"
+                                                Background="{DynamicResource CardElevatedBrush}">
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="{Binding Header}" FontWeight="SemiBold" FontSize="12"/>
+                                                <TextBlock Text="{Binding Body}" TextWrapping="Wrap" FontSize="12"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Materials -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=Materials}">
+                        <TextBlock Classes="title" Text="Materials"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="Add folder" Classes="ghost" Command="{Binding AddFolderMaterialCommand}"/>
+                            <Button Content="Add link" Classes="ghost" Command="{Binding AddLinkMaterialCommand}"/>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding Materials}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12" Margin="0,5" CornerRadius="10"
+                                            Background="{DynamicResource CardElevatedBrush}">
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <CheckBox Grid.Column="0" IsChecked="{Binding LinkedInSpec}" Content="link"
+                                                      VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Display}" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding PathOrUrl}" Classes="subtitle" FontSize="11"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="2" Content="Remove" Classes="ghost"
+                                                    Command="{Binding $parent[ItemsControl].DataContext.RemoveMaterialCommand}"
+                                                    CommandParameter="{Binding}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Rules -->
+                    <StackPanel Spacing="10"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=Rules}">
+                        <TextBlock Classes="title" Text="Rules for the assistant"/>
+                        <ItemsControl ItemsSource="{Binding Rules}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12,10" Margin="0,4" CornerRadius="10"
+                                            Background="{DynamicResource CardElevatedBrush}">
+                                        <CheckBox IsChecked="{Binding IsChecked}">
+                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                        </CheckBox>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Context -->
+                    <StackPanel Spacing="10"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=Context}">
+                        <TextBlock Classes="title" Text="Context"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Define everything this task should know here. It flows into the generated spec, so you don't repeat it elsewhere."/>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="Inherited from project &amp; feature" Classes="section" VerticalAlignment="Center"/>
+                            <Button Content="Refresh" Classes="ghost" Command="{Binding RefreshInheritedContextCommand}"/>
+                        </StackPanel>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Read-only. Edit it by selecting the Project or Feature in the workspace and filling in its context, then Refresh."/>
+                        <TextBox Text="{Binding InheritedContext}" Classes="prompt" IsReadOnly="True"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="120"/>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="Additional context for this task" Classes="section" VerticalAlignment="Center"/>
+                            <Button Content="Save context" Classes="accent" Command="{Binding SaveContextCommand}"/>
+                        </StackPanel>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Saved with the task. You can refine and condense it later when you optimize the spec."/>
+                        <TextBox Text="{Binding ExtraContext}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="160"/>
+                    </StackPanel>
+
+                    <!-- Spec & Kickoff -->
+                    <Grid RowDefinitions="Auto,*"
+                          IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=SpecAndKickoff}">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Classes="title" Text="Spec &amp; Kickoff" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <Button Content="Generate spec.md" Classes="ghost" Command="{Binding GenerateSpecCommand}"
+                                        IsVisible="{Binding CanGenerateSpec}"/>
+                                <Button Content="Optimize with local LLM" Classes="ghost" Command="{Binding OptimizeSpecCommand}"
+                                        IsVisible="{Binding !HasOptimizedPreview}"/>
+                                <Button Content="Apply optimization" Classes="accent" Command="{Binding ApplyOptimizedSpecCommand}"
+                                        IsVisible="{Binding HasOptimizedPreview}"/>
+                                <Button Content="Discard" Classes="ghost" Command="{Binding DiscardOptimizedSpecCommand}"
+                                        IsVisible="{Binding HasOptimizedPreview}"/>
+                                <Button Content="Save (snapshot)" Classes="accent" Command="{Binding SaveSpecCommand}"/>
+                                <Button Content="Copy kickoff prompt" Classes="ghost" Command="{Binding CopyKickoffCommand}"/>
+                            </StackPanel>
+
+                            <!-- Edit / Preview segmented toggle -->
+                            <Border Grid.Column="1" Classes="segment" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="2">
+                                    <RadioButton Classes="segment" Content="Edit" GroupName="SpecMode"
+                                                 IsChecked="{Binding !ShowPreview}"/>
+                                    <RadioButton Classes="segment" Content="Preview" GroupName="SpecMode"
+                                                 IsChecked="{Binding ShowPreview}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*,12,300">
+                            <Border Grid.Column="0" CornerRadius="10" ClipToBounds="True"
+                                    Background="{DynamicResource CardElevatedBrush}">
+                                <Panel>
+                                    <TextBox Text="{Binding SpecText, Mode=TwoWay}"
+                                             AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap"
+                                             FontFamily="Cascadia Code,Consolas,monospace"
+                                             VerticalContentAlignment="Top" Padding="10"
+                                             IsVisible="{Binding !ShowPreview}" MinHeight="380"/>
+                                    <ScrollViewer IsVisible="{Binding ShowPreview}" MinHeight="380">
+                                        <md:MarkdownScrollViewer Markdown="{Binding SpecText}"/>
+                                    </ScrollViewer>
+                                </Panel>
+                            </Border>
+
+                            <DockPanel Grid.Column="2">
+                                <TextBlock DockPanel.Dock="Top" Text="Versions" Classes="section"/>
+                                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" Margin="0,8,0,0">
+                                    <Button Content="View" Classes="ghost" Command="{Binding ViewVersionCommand}"/>
+                                    <Button Content="Diff" Classes="ghost" Command="{Binding ShowVersionDiffCommand}"/>
+                                    <Button Content="Restore" Classes="ghost" Command="{Binding RestoreVersionCommand}"/>
+                                </StackPanel>
+                                <TextBox DockPanel.Dock="Bottom" Text="{Binding DiffText}" Classes="prompt" MinHeight="120"
+                                         IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" Margin="0,8,0,0"
+                                         IsVisible="{Binding DiffText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                <ListBox ItemsSource="{Binding Versions}" Background="Transparent"
+                                         SelectedItem="{Binding SelectedVersion, Mode=TwoWay}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Display}" FontSize="12"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Implement -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=Implement}">
+                        <TextBlock Classes="title" Text="Implement"/>
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Hand the kickoff prompt to Copilot/Claude. Your own notes save to implementation/notes.md; the agent's running log is shown below from implementation/progress.md."/>
+
+                        <Grid ColumnDefinitions="*,16,*">
+                            <!-- Your notes -->
+                            <DockPanel Grid.Column="0">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                    <TextBlock Grid.Column="0" Text="Your notes" Classes="section" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="Save notes" Classes="accent"
+                                            Command="{Binding SaveImplementationCommand}"/>
+                                </Grid>
+                                <TextBox Text="{Binding ImplementationNotes}" AcceptsReturn="True"
+                                         TextWrapping="Wrap" MinHeight="360" VerticalContentAlignment="Top"/>
+                            </DockPanel>
+
+                            <!-- Agent progress (read-only, from disk) -->
+                            <DockPanel Grid.Column="2">
+                                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                    <TextBlock Grid.Column="0" Text="Agent progress (progress.md)" Classes="section"
+                                               VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="⟳ Reload" Classes="ghost"
+                                            Command="{Binding ReloadImplementationProgressCommand}"/>
+                                </Grid>
+                                <Border CornerRadius="10" MinHeight="360" Padding="12"
+                                        Background="{DynamicResource CardElevatedBrush}">
+                                    <Panel>
+                                        <TextBlock Classes="muted" TextWrapping="Wrap" VerticalAlignment="Top"
+                                                   IsVisible="{Binding !HasImplementationProgress}"
+                                                   Text="The coding agent hasn't written progress.md yet. The kickoff prompt asks it to keep this file updated — hit Reload to pull in the latest."/>
+                                        <ScrollViewer IsVisible="{Binding HasImplementationProgress}">
+                                            <md:MarkdownScrollViewer Markdown="{Binding ImplementationProgress}"/>
+                                        </ScrollViewer>
+                                    </Panel>
+                                </Border>
+                            </DockPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Self review -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=SelfReview}">
+                        <TextBlock Classes="title" Text="Self review"/>
+                        <Button Content="Generate &amp; copy review prompt" Classes="accent"
+                                Command="{Binding GenerateSelfReviewCommand}" HorizontalAlignment="Left"/>
+                        <TextBox Text="{Binding SelfReviewPrompt}" Classes="prompt" IsReadOnly="True"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="200"/>
+                    </StackPanel>
+
+                    <!-- Past PR comments -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=PastPrComments}">
+                        <TextBlock Classes="title" Text="Check against past PR comments"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBox Text="{Binding GitHubOwner}" Width="170" Watermark="owner"/>
+                            <TextBox Text="{Binding GitHubRepo}" Width="170" Watermark="repo"/>
+                            <Button Content="Fetch closed PRs" Classes="ghost" Command="{Binding FetchClosedPullRequestsCommand}"/>
+                        </StackPanel>
+                        <Border CornerRadius="10" Background="{DynamicResource CardElevatedBrush}" MaxHeight="230">
+                            <ListBox ItemsSource="{Binding ClosedPullRequests}" Background="Transparent"
+                                     SelectedItem="{Binding SelectedPullRequest, Mode=TwoWay}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Display}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                        <Button Content="Build prompt from selected PR's human comments" Classes="accent"
+                                Command="{Binding GeneratePastCommentsCommand}" HorizontalAlignment="Left"/>
+                        <TextBox Text="{Binding PastCommentsPrompt}" Classes="prompt" IsReadOnly="True"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="180"/>
+                    </StackPanel>
+
+                    <!-- PR comments -->
+                    <StackPanel Spacing="12"
+                                IsVisible="{Binding SelectedStep.Kind, Converter={StaticResource EnumMatch}, ConverterParameter=PrComments}">
+                        <TextBlock Classes="title" Text="Review PR comments"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBox Text="{Binding GitHubOwner}" Width="150" Watermark="owner"/>
+                            <TextBox Text="{Binding GitHubRepo}" Width="150" Watermark="repo"/>
+                            <TextBox Text="{Binding PrNumberText}" Width="100" Watermark="PR #"/>
+                            <Button Content="Fetch &amp; build prompt" Classes="accent" Command="{Binding FetchPrCommentsCommand}"/>
+                        </StackPanel>
+                        <ItemsControl ItemsSource="{Binding PrComments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="12" Margin="0,5" CornerRadius="10"
+                                            Background="{DynamicResource CardElevatedBrush}">
+                                        <StackPanel Spacing="3">
+                                            <TextBlock Text="{Binding Header}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Body}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBox Text="{Binding PrCommentsPrompt}" Classes="prompt" IsReadOnly="True"
+                                 AcceptsReturn="True" TextWrapping="Wrap" MinHeight="180"/>
+                    </StackPanel>
+
+                </Panel>
+            </ScrollViewer>
+          </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>

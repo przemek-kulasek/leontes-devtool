@@ -1,0 +1,69 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Leontes.DevTool.Desktop.ViewModels"
+        x:Class="Leontes.DevTool.Desktop.Views.Dialogs.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="Settings"
+        Width="560" SizeToContent="Height" MaxHeight="760"
+        Background="{DynamicResource AppBgBottomBrush}"
+        WindowStartupLocation="CenterOwner" CanResize="False">
+
+    <ScrollViewer>
+        <StackPanel Margin="22" Spacing="16">
+            <TextBlock Text="Workspace" FontSize="16" FontWeight="SemiBold" />
+            <StackPanel Spacing="4">
+                <TextBlock Text="Root folder (projects are created under here)" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBox Grid.Column="0" Text="{Binding WorkspaceRootPath}" />
+                    <Button Grid.Column="1" Content="Browse…" Command="{Binding BrowseRootCommand}" />
+                </Grid>
+            </StackPanel>
+
+            <TextBlock Text="Jira Cloud" FontSize="16" FontWeight="SemiBold" />
+            <StackPanel Spacing="8">
+                <TextBlock Text="Base URL (e.g. https://your-org.atlassian.net)" />
+                <TextBox Text="{Binding JiraBaseUrl}" Watermark="https://your-org.atlassian.net" />
+                <TextBlock Text="Email" />
+                <TextBox Text="{Binding JiraEmail}" />
+                <TextBlock Text="API token" />
+                <TextBox Text="{Binding JiraApiToken}" PasswordChar="•" />
+                <TextBlock Text="Acceptance criteria field ID" />
+                <TextBox Text="{Binding JiraAcceptanceCriteriaFieldId}"
+                         Watermark="customfield_10016"/>
+            </StackPanel>
+
+            <TextBlock Text="GitHub" FontSize="16" FontWeight="SemiBold" />
+            <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="Default owner" />
+                        <TextBox Text="{Binding GitHubDefaultOwner}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="4">
+                        <TextBlock Text="Default repo" />
+                        <TextBox Text="{Binding GitHubDefaultRepo}" />
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="Personal access token" />
+                <TextBox Text="{Binding GitHubPat}" PasswordChar="•" />
+            </StackPanel>
+
+            <TextBlock Text="Local LLM (Ollama)" FontSize="16" FontWeight="SemiBold" />
+            <StackPanel Spacing="8">
+                <TextBlock Text="Endpoint" />
+                <TextBox Text="{Binding OllamaEndpoint}" />
+                <TextBlock Text="Chat model" />
+                <TextBox Text="{Binding OllamaChatModel}" />
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Content="Test connection" Command="{Binding TestOllamaCommand}" />
+                    <TextBlock Text="{Binding OllamaStatus}" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,8,0,0">
+                <Button Content="Cancel" IsCancel="True" Click="OnCancel" />
+                <Button Content="Save" IsDefault="True" Classes="accent" Click="OnSave" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

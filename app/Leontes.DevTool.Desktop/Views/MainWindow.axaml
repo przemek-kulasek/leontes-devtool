@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Leontes.DevTool.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1240" d:DesignHeight="800"
+        x:Class="Leontes.DevTool.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Width="1240" Height="800"
+        Title="Leontes"
+        TransparencyLevelHint="None"
+        ExtendClientAreaToDecorationsHint="False">
+
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="40%,100%">
+            <GradientStop Offset="0" Color="#16203A"/>
+            <GradientStop Offset="1" Color="#0C1120"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="18">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="2,0,2,16">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource AccentBrush}">
+                    <TextBlock Text="L" FontSize="18" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Leontes" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="task &amp; LLM workflow studio" Classes="subtitle"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Button Grid.Column="2" Content="⚙  Settings" Classes="ghost"
+                    Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Body -->
+        <Grid Grid.Row="1" ColumnDefinitions="300,18,*">
+            <Border Grid.Column="0" Classes="card" Padding="10">
+                <DockPanel>
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="6,2,2,8">
+                        <TextBlock Grid.Column="0" Text="WORKSPACE" Classes="subtitle"
+                                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <Button Grid.Column="1" Content="⟳" Classes="ghost" Padding="9,6" MinHeight="0"
+                                Command="{Binding RefreshCommand}" ToolTip.Tip="Refresh"/>
+                    </Grid>
+
+                    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,*" ColumnSpacing="6" RowDefinitions="Auto,Auto"
+                          Margin="2,0,2,10">
+                        <Button Grid.Row="0" Grid.Column="0" Content="+ Project" Classes="accent"
+                                HorizontalAlignment="Stretch" Command="{Binding AddProjectCommand}"/>
+                        <Button Grid.Row="0" Grid.Column="1" Content="+ Feature" Classes="ghost"
+                                HorizontalAlignment="Stretch" Command="{Binding AddFeatureCommand}"/>
+                        <Button Grid.Row="1" Grid.Column="0" Content="+ Task" Classes="ghost"
+                                HorizontalAlignment="Stretch" Command="{Binding AddTaskCommand}" Margin="0,6,0,0"/>
+                        <Button Grid.Row="1" Grid.Column="1" Content="Delete" Classes="ghost"
+                                HorizontalAlignment="Stretch" Command="{Binding DeleteSelectedCommand}" Margin="0,6,0,0"/>
+                    </Grid>
+
+                    <TreeView ItemsSource="{Binding Roots}" Background="Transparent"
+                              SelectedItem="{Binding SelectedNode, Mode=TwoWay}">
+                        <TreeView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Children}" x:DataType="vm:NavNode">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Icon}"/>
+                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </TreeDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </DockPanel>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Background="Transparent" ResizeDirection="Columns"/>
+
+            <Panel Grid.Column="2">
+                <Border Classes="card"
+                        IsVisible="{Binding CurrentContent, Converter={x:Static ObjectConverters.IsNull}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" MaxWidth="440">
+                        <TextBlock Text="🗂" FontSize="40" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Select something in the workspace" Classes="title" HorizontalAlignment="Center"/>
+                        <TextBlock Classes="muted" TextAlignment="Center" TextWrapping="Wrap"
+                                   Text="Use + Project to start. Select a Project or Feature to edit its context, or a Task to run the Intake → Materials → Rules → Context → Spec → Implement → Review workflow."/>
+                    </StackPanel>
+                </Border>
+                <ContentControl Content="{Binding CurrentContent}"/>
+            </Panel>
+        </Grid>
+
+        <!-- Status bar -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="4,14,4,0">
+            <TextBlock Grid.Column="0" Text="{Binding Status}" Classes="muted" VerticalAlignment="Center"/>
+            <ProgressBar Grid.Column="1" Width="140" IsIndeterminate="True" IsVisible="{Binding IsBusy}"/>
+        </Grid>
+    </Grid>
+</Window>

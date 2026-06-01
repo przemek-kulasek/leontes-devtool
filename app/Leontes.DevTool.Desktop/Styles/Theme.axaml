@@ -1,0 +1,120 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Typography -->
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.section">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+
+    <!-- Card -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="BoxShadow" Value="0 8 24 0 #28000000"/>
+    </Style>
+
+    <!-- Buttons: rounded, comfortable -->
+    <Style Selector="Button">
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Padding" Value="14,9"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    <Style Selector="ToggleButton">
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Padding" Value="14,9"/>
+        <Setter Property="MinHeight" Value="36"/>
+    </Style>
+
+    <!-- Pill ghost button for toolbar -->
+    <Style Selector="Button.ghost">
+        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="10"/>
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+    </Style>
+
+    <!-- Inputs -->
+    <Style Selector="TextBox">
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="MinHeight" Value="34"/>
+    </Style>
+    <Style Selector="ComboBox">
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="MinHeight" Value="34"/>
+    </Style>
+
+    <!-- List items: rounded, spaced -->
+    <Style Selector="ListBoxItem">
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="Padding" Value="10,8"/>
+    </Style>
+    <Style Selector="TreeViewItem">
+        <Setter Property="Margin" Value="0,1"/>
+    </Style>
+
+    <!-- Read-only prompt / code surface -->
+    <Style Selector="TextBox.prompt">
+        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}"/>
+        <Setter Property="FontFamily" Value="Cascadia Code,Consolas,monospace"/>
+        <Setter Property="CornerRadius" Value="10"/>
+    </Style>
+
+    <!-- Segmented toggle (e.g. Edit / Preview), styled like a modern tab switch -->
+    <Style Selector="Border.segment">
+        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="Padding" Value="3"/>
+    </Style>
+    <Style Selector="RadioButton.segment">
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="seg" CornerRadius="7" Background="Transparent" Padding="16,5">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RadioButton.segment:pointerover /template/ Border#seg">
+        <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+    </Style>
+    <Style Selector="RadioButton.segment:checked /template/ Border#seg">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+    </Style>
+    <Style Selector="RadioButton.segment:checked">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <!-- Status dot -->
+    <Style Selector="Border.dot">
+        <Setter Property="Width" Value="10"/>
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="CornerRadius" Value="5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+</Styles>

@@ -1,0 +1,37 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Leontes.DevTool.Desktop.App"
+             xmlns:local="using:Leontes.DevTool.Desktop"
+             xmlns:conv="using:Leontes.DevTool.Desktop.Converters"
+             xmlns:sty="using:FluentAvalonia.Styling"
+             RequestedThemeVariant="Dark">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+    <Application.Resources>
+        <conv:EnumMatchConverter x:Key="EnumMatch"/>
+        <conv:StepStatusToBrushConverter x:Key="StepStatusBrush"/>
+
+        <!-- Palette (dark navy dashboard) -->
+        <Color x:Key="AccentColor">#3D7BFF</Color>
+        <SolidColorBrush x:Key="AppBgTopBrush"      Color="#16203A"/>
+        <SolidColorBrush x:Key="AppBgBottomBrush"   Color="#0C1120"/>
+        <SolidColorBrush x:Key="CardBrush"          Color="#19223A"/>
+        <SolidColorBrush x:Key="CardElevatedBrush"  Color="#212C49"/>
+        <SolidColorBrush x:Key="CardBorderBrush"    Color="#2B3858"/>
+        <SolidColorBrush x:Key="AccentBrush"        Color="#3D7BFF"/>
+        <SolidColorBrush x:Key="AccentSoftBrush"    Color="#223158"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush"   Color="#E8EDF9"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#8B98B8"/>
+        <SolidColorBrush x:Key="SuccessBrush"       Color="#35D29A"/>
+        <SolidColorBrush x:Key="DangerBrush"        Color="#F76C6C"/>
+        <SolidColorBrush x:Key="WarnBrush"          Color="#F7B955"/>
+    </Application.Resources>
+
+    <Application.Styles>
+        <sty:FluentAvaloniaTheme PreferSystemTheme="False" PreferUserAccentColor="False" CustomAccentColor="#3D7BFF"/>
+        <StyleInclude Source="avares://Leontes.DevTool.Desktop/Styles/Theme.axaml"/>
+    </Application.Styles>
+</Application>

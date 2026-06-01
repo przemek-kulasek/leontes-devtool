@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Leontes.DevTool.Desktop.ViewModels.Dialogs"
+        x:Class="Leontes.DevTool.Desktop.Views.Dialogs.InputDialog"
+        x:DataType="vm:InputDialogViewModel"
+        Title="{Binding Title}"
+        Width="460" SizeToContent="Height"
+        MinHeight="140"
+        Background="{DynamicResource AppBgBottomBrush}"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+    <Window.Styles>
+        <Style Selector="TextBox[AcceptsReturn=True]">
+            <Setter Property="Height" Value="110" />
+            <Setter Property="VerticalContentAlignment" Value="Top" />
+        </Style>
+    </Window.Styles>
+
+    <StackPanel Margin="20" Spacing="14">
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        <ItemsControl ItemsSource="{Binding Fields}" IsVisible="{Binding ShowFields}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:InputFieldViewModel">
+                    <StackPanel Spacing="4" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                        <TextBox Text="{Binding Value, Mode=TwoWay}"
+                                 AcceptsReturn="{Binding Multiline}"
+                                 TextWrapping="Wrap" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Cancel" IsCancel="True" Click="OnCancel"
+                    IsVisible="{Binding ShowCancel}" />
+            <Button Content="{Binding PrimaryText}" IsDefault="True" Click="OnPrimary"
+                    Classes="accent" />
+        </StackPanel>
+    </StackPanel>
+</Window>
