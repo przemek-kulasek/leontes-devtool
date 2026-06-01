@@ -53,12 +53,11 @@ Prebuilt, self-contained builds (no .NET install required) are attached to each
 |---|---|
 | Windows (x64) | `leontes-<version>-win-x64.zip` |
 | Linux (x64) | `leontes-<version>-linux-x64.tar.gz` |
-| macOS (Apple Silicon) | `leontes-<version>-osx-arm64.tar.gz` |
-| macOS (Intel) | `leontes-<version>-osx-x64.tar.gz` |
 
-Unpack and run the `Leontes.DevTool.Desktop` executable. On macOS the binary is **unsigned**, so the
-first launch needs `xattr -dr com.apple.quarantine <folder>` (or right-click → Open) and
-`chmod +x Leontes.DevTool.Desktop`.
+Unpack and run the `Leontes.DevTool.Desktop` executable (on Linux, `chmod +x` it first).
+
+> macOS builds are paused for now; see the matrix in
+> [`.github/workflows/release.yml`](.github/workflows/release.yml) for how to re-enable them.
 
 ### Cutting a release (maintainers)
 

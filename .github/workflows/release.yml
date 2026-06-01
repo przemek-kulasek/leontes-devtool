@@ -32,8 +32,9 @@ jobs:
         include:
           - { os: windows-latest, rid: win-x64 }
           - { os: ubuntu-latest,  rid: linux-x64 }
-          - { os: macos-latest,   rid: osx-arm64 }   # Apple Silicon
-          - { os: macos-13,       rid: osx-x64 }     # Intel Macs
+          # macOS builds are paused for now. To re-enable, add (both build fine on the arm64 runner):
+          #   - { os: macos-latest, rid: osx-arm64 }
+          #   - { os: macos-latest, rid: osx-x64 }
     steps:
       - uses: actions/checkout@v4
 
