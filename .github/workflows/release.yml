@@ -1,0 +1,107 @@
+name: Release
+
+# Builds downloadable, self-contained binaries for each desktop OS.
+#   • Push a tag like `v0.1.0`  -> builds all platforms AND publishes a GitHub Release with the assets.
+#   • Run manually (workflow_dispatch) -> builds all platforms and uploads them as run artifacts only
+#     (no Release), so you can test a build before tagging.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label for artifact names on manual runs (e.g. v0.1.0-test).'
+        required: false
+        default: 'v0.0.0-dev'
+
+permissions:
+  contents: write
+
+env:
+  PROJECT: app/Leontes.DevTool.Desktop/Leontes.DevTool.Desktop.csproj
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  build:
+    name: Build ${{ matrix.rid }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-latest,  rid: linux-x64 }
+          - { os: macos-latest,   rid: osx-arm64 }   # Apple Silicon
+          - { os: macos-13,       rid: osx-x64 }     # Intel Macs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Resolve version
+        id: ver
+        shell: bash
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish (self-contained, single file)
+        shell: bash
+        run: |
+          dotnet publish "$PROJECT" -c Release -r ${{ matrix.rid }} --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:EnableCompressionInSingleFile=true \
+            -p:DebugType=none -p:DebugSymbols=false \
+            -o "publish/${{ matrix.rid }}"
+
+      - name: Package (zip) — Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $name = "leontes-${{ steps.ver.outputs.version }}-${{ matrix.rid }}.zip"
+          Compress-Archive -Path "publish/${{ matrix.rid }}/*" -DestinationPath $name
+          "ASSET=$name" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Package (tar.gz) — Linux / macOS
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          name="leontes-${{ steps.ver.outputs.version }}-${{ matrix.rid }}.tar.gz"
+          tar -czf "$name" -C "publish/${{ matrix.rid }}" .
+          echo "ASSET=$name" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leontes-${{ matrix.rid }}
+          path: ${{ env.ASSET }}
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create / update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/* \
+            --repo "${{ github.repository }}" \
+            --title "Leontes ${{ github.ref_name }}" \
+            --generate-notes

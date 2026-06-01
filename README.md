@@ -44,7 +44,38 @@ Clean Architecture (dependencies flow inward); the Application layer is the seam
 | `Leontes.DevTool.Infrastructure` | EF Core (SQLite), file/snapshot, Jira/GitHub/Ollama clients, secret/settings stores |
 | `Leontes.DevTool.Desktop` | Avalonia 11 MVVM UI (composition root) |
 
+## Download
+
+Prebuilt, self-contained builds (no .NET install required) are attached to each
+[GitHub Release](../../releases) — grab the archive for your platform:
+
+| Platform | Asset |
+|---|---|
+| Windows (x64) | `leontes-<version>-win-x64.zip` |
+| Linux (x64) | `leontes-<version>-linux-x64.tar.gz` |
+| macOS (Apple Silicon) | `leontes-<version>-osx-arm64.tar.gz` |
+| macOS (Intel) | `leontes-<version>-osx-x64.tar.gz` |
+
+Unpack and run the `Leontes.DevTool.Desktop` executable. On macOS the binary is **unsigned**, so the
+first launch needs `xattr -dr com.apple.quarantine <folder>` (or right-click → Open) and
+`chmod +x Leontes.DevTool.Desktop`.
+
+### Cutting a release (maintainers)
+
+Releases are built by [`.github/workflows/release.yml`](.github/workflows/release.yml). Push a version
+tag and the workflow builds all platforms and publishes the Release automatically:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Run the workflow manually (**Actions → Release → Run workflow**) to produce build artifacts for testing
+without publishing a Release.
+
 ## Requirements
+
+To build from source:
 
 - .NET 10 SDK
 - (Optional) [Ollama](https://ollama.com) running locally for LLM helpers — default
